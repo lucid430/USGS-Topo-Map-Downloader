@@ -4,13 +4,14 @@ import sys
 import requests
 from pathlib import Path
 
-MAPS_FILE = 'topomaps_all_lat_long.csv'
+MAPS_FILE = 'topomaps_latlong.csv'
 lat = 0.0
 lon = 0.0
 
 def DownloadFile(url, filename):
     scriptPath = sys.path[0]
     folder = './LatLong/'
+    os.makedirs(folder, exist_ok=True)
     r = requests.get(url)
     with open(folder + filename, 'wb') as file:
         response = requests.get(url)
@@ -51,10 +52,5 @@ def GetLatLong():
     print(latlong)
     return latlong
 
-#  N       W       S    E
-#37.625,-79.625,37.5,-79.5,https://prd-tnm.s3.amazonaws.com/StagedProducts/Maps/USTopo/PDF/VA/VA_Arnold_Valley_20190816_TM_geo.pdf,USGSX24K1505
-
-
-#latLong = GetLatLong()
-latLong = [37.55, -79.55]  
+latLong = GetLatLong()
 FindDownloadMap(MAPS_FILE, latLong)
