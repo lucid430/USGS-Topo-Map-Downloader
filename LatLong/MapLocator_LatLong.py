@@ -18,14 +18,17 @@ def DownloadFile(url, filename):
 
 # Case where user wants to download all maps
 def FindDownloadMap(MAPS_FILE, latLong):
+    print(MAPS_FILE)
+    print(latLong)
     with open(MAPS_FILE) as csvfile:
+        print('IN CSV')
         next(csvfile)
         rows = csv.reader(csvfile, delimiter=',')
-        for row in rows:
-            northLat = row[0]
-            southLat = row[2]
-            eastLong = row[1]
-            westLong = row[3]
+        for row in rows: 
+            northLat = float(row[0])
+            westLong = float(row[1])
+            southLat = float(row[2])
+            eastLong = float(row[3])
             if(LatLongWithinBox(northLat, southLat, eastLong, westLong, latLong[0], latLong[1])):
                 url = row[4]
                 filename = url.split('/')[-1]
@@ -42,10 +45,16 @@ def LatLongWithinBox(nlim, slim, elim, wlim, lat, lon):
     return False
 
 def GetLatLong():
-    lat = float(input('Input Latitude rounded to 2 decimals'))
-    lon = float(input('Input Longitude rounded to 2 decimals'))
+    lat = float(input('Input Latitude  rounded to 3 decimals: '))
+    lon = float(input('Input Longitude rounded to 3 decimals: '))
     latlong = [lat, lon]
+    print(latlong)
     return latlong
 
-latLong = GetLatLong()  
+#  N       W       S    E
+#37.625,-79.625,37.5,-79.5,https://prd-tnm.s3.amazonaws.com/StagedProducts/Maps/USTopo/PDF/VA/VA_Arnold_Valley_20190816_TM_geo.pdf,USGSX24K1505
+
+
+#latLong = GetLatLong()
+latLong = [37.55, -79.55]  
 FindDownloadMap(MAPS_FILE, latLong)
