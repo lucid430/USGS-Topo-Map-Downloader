@@ -46,11 +46,12 @@ def LatLongWithinBox(nlim, slim, elim, wlim, lat, lon):
     return False
 
 def GetLatLong():
-    lat = float(input('Input Latitude  rounded to 3 decimals: '))
-    lon = float(input('Input Longitude rounded to 3 decimals: '))
+    lat = float(input('Input Latitude  (decimal):\t'))
+    lon = float(input('Input Longitude (decimal):\t'))
     latlong = [lat, lon]
     print(latlong)
     return latlong
 
-latLong = GetLatLong()
-FindDownloadMap(MAPS_FILE, latLong)
+def MapLocatorLatLong():
+    latLong = GetLatLong()
+    FindDownloadMap(MAPS_FILE, latLong)
