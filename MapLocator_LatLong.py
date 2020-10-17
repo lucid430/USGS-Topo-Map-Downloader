@@ -2,27 +2,49 @@ import csv
 import os
 import sys
 import requests
+import progressbar
+import time
+import numpy as np
 from pathlib import Path
 
 MAPS_FILE = 'topomaps_latlong.csv'
 lat = 0.0
 lon = 0.0
 
-def DownloadFile(url, filename):
-    scriptPath = sys.path[0]
+# def DownloadFile(url, filename):
+#     scriptPath = sys.path[0]
+#     folder = './LatLong/'
+#     os.makedirs(folder, exist_ok=True)
+#     r = requests.get(url)
+#     with open(folder + filename, 'wb') as file:
+#         response = requests.get(url)
+#         file.write(response.content)
+
+def DownloadFile(url, filename, n_chunk=1):
+    request = requests.get(url, stream=True)
+
+    # Estimates the number of bar updates
+    block_size = 10*1024*1024
+    file_size = int(request.headers.get('Content-Length', None))
+    num_bars = np.ceil(file_size / (n_chunk * block_size))
+    bar = progressbar.ProgressBar(maxval=num_bars).start()
+
+    # Create folder for file
     folder = './LatLong/'
     os.makedirs(folder, exist_ok=True)
-    r = requests.get(url)
+
     with open(folder + filename, 'wb') as file:
-        response = requests.get(url)
-        file.write(response.content)
+        for i, chunk in enumerate(request.iter_content(chunk_size=n_chunk * block_size)):
+            file.write(chunk)
+            bar.update(i+1)
+            # Sleep to see bar progress
+            time.sleep(0.05)
+        #file.write(request.content)
+
 
 # Case where user wants to download all maps
 def FindDownloadMap(MAPS_FILE, latLong):
-    print(MAPS_FILE)
-    print(latLong)
     with open(MAPS_FILE) as csvfile:
-        print('IN CSV')
         next(csvfile)
         rows = csv.reader(csvfile, delimiter=',')
         for row in rows: 

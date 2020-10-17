@@ -115,6 +115,9 @@ import getopt
 import requests
 import os
 import csv
+import progressbar
+import time
+import numpy as np
 
 # Expect: User will enter: 
 #               py TopoDownloader.py -s Ohio
@@ -196,14 +199,35 @@ def CreateFolders(states):
 # https://prd-tnm.s3.amazonaws.com/StagedProducts/Maps/USTopo/PDF/AK/AK_Talkeetna_D-3_NE_20140102_TM_geo.pdf
 # Column 9 in csv
 
-def DownloadFile(state, url, filename):
-    scriptPath = sys.path[0]
-    downloadPath = Path(scriptPath + '/' + state + '/')
+# def DownloadFile(state, url, filename):
+#     scriptPath = sys.path[0]
+#     downloadPath = Path(scriptPath + '/' + state + '/')
+#     folder = './' + state + '/'
+#     r = requests.get(url)
+#     with open(folder + filename, 'wb') as file:
+#         response = requests.get(url)
+#         file.write(response.content)
+
+def DownloadFile(state, url, filename, n_chunk=1):
+    request = requests.get(url, stream=True)
+
+    # Estimates the number of bar updates
+    block_size = 10*1024*1024
+    file_size = int(request.headers.get('Content-Length', None))
+    num_bars = np.ceil(file_size / (n_chunk * block_size))
+    bar = progressbar.ProgressBar(maxval=num_bars).start()
+
+    # Create folder for file
     folder = './' + state + '/'
-    r = requests.get(url)
+    os.makedirs(folder, exist_ok=True)
+
     with open(folder + filename, 'wb') as file:
-        response = requests.get(url)
-        file.write(response.content)
+        for i, chunk in enumerate(request.iter_content(chunk_size=n_chunk * block_size)):
+            file.write(chunk)
+            bar.update(i+1)
+            # Sleep to see bar progress
+            time.sleep(0.05)
+        #file.write(request.content)
 
 
 
@@ -248,14 +272,14 @@ def DownloadMaps(MAPS_FILE, states):
             if(state in states):
                 filesize = ConvertByteToMegabyte(filesizeBytes)
                 filename = url.split('/')[-1]
-                print('Downloading: ' + filename, end='')
-                DownloadFile(state, url, filename)
+#                DownloadFile(state, url, filename)
                 print('*\t' + filesize)
                 
                 global TOTAL_FILE_SIZE_BYTES
                 TOTAL_FILE_SIZE_BYTES += int(filesizeBytes)
 
     PrintEndDownload()
+
 
 
 # Case where user wants to download all maps
