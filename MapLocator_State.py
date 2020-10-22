@@ -158,6 +158,24 @@ def GetStates():
 
 #######################################################################################
 #######################################################################################
+def GetState():
+    state = input('  Enter a state: ')
+    stateAry = []
+    if(len(state) > 3 and state.upper() != 'ALL'):
+        stateAry.append(ConvertToShorthand(state))
+
+    elif(state.upper() != 'ALL'):
+        state = state.upper()
+        stateAry.append(state)
+
+    else:
+        stateAry.append('ALL')
+
+    print('  You chose ' + state + '.')
+
+    return stateAry
+#######################################################################################
+#######################################################################################
 
 # Create folders of states
 def CreateFolders(states):
@@ -193,6 +211,7 @@ def DownloadFile(state, url, filename):
 #######################################################################################
 
 def PrintStartDownload():
+    print('                                        ')
     print('---------Begin Downloading Maps---------')
     print('---DONT STOP THE SCRIPT WHILE RUNNING---')
     print('----------------------------------------')
@@ -263,11 +282,14 @@ def DownloadAllMaps(MAPS_FILE):
 #######################################################################################
 #######################################################################################
 
-states = GetStates()
-CreateFolders(states)
-if(states[0] == 'ALL'):
-    DownloadAllMaps(MAPS_FILE)
-else:
-    DownloadMaps(MAPS_FILE, states)
-PrintTotalDownloadSize()
-#ReadMapsFile(MAPS_FILE, states)
+def MapLocatorState():
+#    stateAry = GetStates()
+    stateAry = GetState()
+    # CreateFolders(states)
+    CreateFolders(stateAry)
+    if(stateAry[0] == 'ALL'):
+        DownloadAllMaps(MAPS_FILE)
+    else:
+        DownloadMaps(MAPS_FILE, stateAry)
+    PrintTotalDownloadSize()
+    #ReadMapsFile(MAPS_FILE, states)
